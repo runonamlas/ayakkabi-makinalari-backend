@@ -1,0 +1,1 @@
+web: bin/my_way_backend
