@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
-	"github.com/my-way-teams/my_way_backend/dto"
-	"github.com/my-way-teams/my_way_backend/entity"
-	"github.com/my-way-teams/my_way_backend/helper"
-	"github.com/my-way-teams/my_way_backend/service"
+	"github.com/runonamlas/ayakkabi-makinalari-backend/dto"
+	"github.com/runonamlas/ayakkabi-makinalari-backend/entity"
+	"github.com/runonamlas/ayakkabi-makinalari-backend/helper"
+	"github.com/runonamlas/ayakkabi-makinalari-backend/service"
 	"net/http"
 	"strconv"
 )
@@ -22,13 +22,13 @@ type AdminController interface {
 
 type adminController struct {
 	adminService service.AdminService
-	jwtService service.JWTService
+	jwtService   service.JWTService
 }
 
 func NewAdminController(adminService service.AdminService, jwtService service.JWTService) AdminController {
 	return &adminController{
 		adminService: adminService,
-		jwtService: jwtService,
+		jwtService:   jwtService,
 	}
 }
 
@@ -67,10 +67,10 @@ func (c *adminController) Register(ctx *gin.Context) {
 		return
 	}
 
-	if !c.adminService.IsDuplicateEmail(adminRegisterDTO.Email) || !c.adminService.IsDuplicateUsername(adminRegisterDTO.Username){
+	if !c.adminService.IsDuplicateEmail(adminRegisterDTO.Email) || !c.adminService.IsDuplicateUsername(adminRegisterDTO.Username) {
 		response := helper.BuildErrorResponse("Failed to process request", "Duplicate email, username and call number", helper.EmptyObj{})
 		ctx.AbortWithStatusJSON(http.StatusConflict, response)
-	}else {
+	} else {
 		createdAdmin := c.adminService.Create(adminRegisterDTO)
 		token := c.jwtService.GenerateToken(strconv.FormatUint(createdAdmin.ID, 10))
 		createdAdmin.Token = token
@@ -78,7 +78,6 @@ func (c *adminController) Register(ctx *gin.Context) {
 		ctx.JSON(http.StatusCreated, response)
 	}
 }
-
 
 func (c *adminController) Update(context *gin.Context) {
 	var adminUpdateDTO dto.AdminUpdateDTO

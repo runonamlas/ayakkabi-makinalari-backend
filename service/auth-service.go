@@ -2,16 +2,16 @@ package service
 
 import (
 	"github.com/mashingan/smapping"
-	"github.com/my-way-teams/my_way_backend/dto"
-	"github.com/my-way-teams/my_way_backend/entity"
-	"github.com/my-way-teams/my_way_backend/repository"
+	"github.com/runonamlas/ayakkabi-makinalari-backend/dto"
+	"github.com/runonamlas/ayakkabi-makinalari-backend/entity"
+	"github.com/runonamlas/ayakkabi-makinalari-backend/repository"
 	"golang.org/x/crypto/bcrypt"
 	"log"
 )
 
 type AuthService interface {
 	VerifyCredential(email string) interface{}
-	VerifyPassword(res interface{},password string) interface{}
+	VerifyPassword(res interface{}, password string) interface{}
 	CreateUser(user dto.RegisterDTO) entity.User
 	FindByEmail(email string) entity.User
 	IsDuplicateEmail(email string) bool
@@ -30,7 +30,7 @@ func NewAuthService(userRep repository.UserRepository) AuthService {
 	}
 }
 
-func (service *authService) VerifyCredential(email string) interface{}  {
+func (service *authService) VerifyCredential(email string) interface{} {
 	res := service.userRepository.VerifyCredential(email)
 	if v, ok := res.(entity.User); ok {
 		if v.Email == email || v.Username == email {
@@ -41,7 +41,7 @@ func (service *authService) VerifyCredential(email string) interface{}  {
 	return false
 }
 
-func (service *authService) VerifyPassword(res interface{}, password string) interface{}  {
+func (service *authService) VerifyPassword(res interface{}, password string) interface{} {
 	if v, ok := res.(entity.User); ok {
 		comparedPassword := comparedPassword(v.Password, []byte(password))
 		if comparedPassword {

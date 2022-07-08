@@ -2,13 +2,14 @@ package config
 
 import (
 	"fmt"
-	"github.com/my-way-teams/my_way_backend/entity"
+	//"github.com/runonamlas/ayakkabi-makinalari-backend/entity"
 	"os"
 
 	"github.com/joho/godotenv"
+	"github.com/runonamlas/ayakkabi-makinalari-backend/entity"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
-	)
+)
 
 func SetupDatabaseConnection() *gorm.DB {
 	errEnv := godotenv.Load()
@@ -29,7 +30,8 @@ func SetupDatabaseConnection() *gorm.DB {
 	if err != nil {
 		panic("Failed a connection database")
 	}
-	err = db.AutoMigrate(&entity.Admin{}, &entity.User{},&entity.Country{}, &entity.City{}, &entity.Place{}, &entity.PlaceCategory{}, &entity.Route{})
+	//err = db.AutoMigrate(&entity.Admin{}, &entity.User{}, &entity.Country{}, &entity.City{}, &entity.Place{}, &entity.PlaceCategory{}, &entity.Route{})
+	err = db.AutoMigrate(&entity.User{}, &entity.Product{}, &entity.ProductCategory{}, &entity.Message{})
 	if err != nil {
 		return nil
 	}

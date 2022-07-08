@@ -2,15 +2,15 @@ package service
 
 import (
 	"github.com/mashingan/smapping"
-	"github.com/my-way-teams/my_way_backend/dto"
-	"github.com/my-way-teams/my_way_backend/entity"
-	"github.com/my-way-teams/my_way_backend/repository"
+	"github.com/runonamlas/ayakkabi-makinalari-backend/dto"
+	"github.com/runonamlas/ayakkabi-makinalari-backend/entity"
+	"github.com/runonamlas/ayakkabi-makinalari-backend/repository"
 	"log"
 )
 
 type AdminService interface {
 	VerifyCredential(email string) interface{}
-	VerifyPassword(res interface{},password string) interface{}
+	VerifyPassword(res interface{}, password string) interface{}
 	Create(admin dto.AdminRegisterDTO) entity.Admin
 	Update(admin dto.AdminUpdateDTO) entity.Admin
 	Profile(adminID string) entity.Admin
@@ -31,7 +31,7 @@ func NewAdminService(adminRep repository.AdminRepository) AdminService {
 	}
 }
 
-func (service *adminService) VerifyCredential(email string) interface{}  {
+func (service *adminService) VerifyCredential(email string) interface{} {
 	res := service.adminRepository.VerifyCredential(email)
 	if v, ok := res.(entity.Admin); ok {
 		if v.Email == email || v.Username == email {
@@ -42,7 +42,7 @@ func (service *adminService) VerifyCredential(email string) interface{}  {
 	return false
 }
 
-func (service *adminService) VerifyPassword(res interface{}, password string) interface{}  {
+func (service *adminService) VerifyPassword(res interface{}, password string) interface{} {
 	if v, ok := res.(entity.Admin); ok {
 		comparedPassword := comparedPassword(v.Password, []byte(password))
 		if comparedPassword {
@@ -79,7 +79,6 @@ func (service *adminService) Profile(adminID string) entity.Admin {
 func (service *adminService) Users() []entity.User {
 	return service.adminRepository.Users()
 }
-
 
 func (service *adminService) FindByEmail(email string) entity.Admin {
 	return service.adminRepository.FindByEmail(email)

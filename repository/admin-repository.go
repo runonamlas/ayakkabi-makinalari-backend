@@ -1,7 +1,7 @@
 package repository
 
 import (
-	"github.com/my-way-teams/my_way_backend/entity"
+	"github.com/runonamlas/ayakkabi-makinalari-backend/entity"
 	"gorm.io/gorm"
 )
 
@@ -27,16 +27,16 @@ func NewAdminRepository(db *gorm.DB) AdminRepository {
 	}
 }
 
-func (db *adminConnection) InsertAdmin(admin entity.Admin) entity.Admin  {
+func (db *adminConnection) InsertAdmin(admin entity.Admin) entity.Admin {
 	admin.Password = hashAndSalt([]byte(admin.Password))
 	db.connection.Save(&admin)
 	return admin
 }
 
-func (db *adminConnection) UpdateAdmin(admin entity.Admin) entity.Admin  {
+func (db *adminConnection) UpdateAdmin(admin entity.Admin) entity.Admin {
 	if admin.Password != "" {
 		admin.Password = hashAndSalt([]byte(admin.Password))
-	}else {
+	} else {
 		var tempAdmin entity.Admin
 		db.connection.Find(&tempAdmin, admin.ID)
 		admin.Password = tempAdmin.Password
@@ -57,12 +57,12 @@ func (db *adminConnection) VerifyCredential(email string) interface{} {
 
 func (db *adminConnection) IsDuplicateEmail(email string) (tx *gorm.DB) {
 	var admin entity.Admin
-	return  db.connection.Where("email = ?", email).Take(&admin)
+	return db.connection.Where("email = ?", email).Take(&admin)
 }
 
 func (db *adminConnection) IsDuplicateUsername(username string) (tx *gorm.DB) {
 	var admin entity.Admin
-	return  db.connection.Where("username = ?", username).Take(&admin)
+	return db.connection.Where("username = ?", username).Take(&admin)
 }
 
 func (db *adminConnection) FindByEmail(email string) entity.Admin {

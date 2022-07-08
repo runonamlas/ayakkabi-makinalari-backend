@@ -2,13 +2,13 @@ package middleware
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/my-way-teams/my_way_backend/helper"
-	"github.com/my-way-teams/my_way_backend/service"
+	"github.com/runonamlas/ayakkabi-makinalari-backend/helper"
+	"github.com/runonamlas/ayakkabi-makinalari-backend/service"
 	"log"
 	"net/http"
 )
 
-func AuthorizeJWT(jwtService service.JWTService) gin.HandlerFunc  {
+func AuthorizeJWT(jwtService service.JWTService) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		authHeader := c.GetHeader("Authorization")
 		if authHeader == "" {

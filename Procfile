@@ -1,1 +1,1 @@
-web: bin/my_way_backend
+web: bin/ayakkabi-makinalari-backend

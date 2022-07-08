@@ -2,10 +2,10 @@ package controller
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/my-way-teams/my_way_backend/dto"
-	"github.com/my-way-teams/my_way_backend/entity"
-	"github.com/my-way-teams/my_way_backend/helper"
-	"github.com/my-way-teams/my_way_backend/service"
+	"github.com/runonamlas/ayakkabi-makinalari-backend/dto"
+	"github.com/runonamlas/ayakkabi-makinalari-backend/entity"
+	"github.com/runonamlas/ayakkabi-makinalari-backend/helper"
+	"github.com/runonamlas/ayakkabi-makinalari-backend/service"
 	"net/http"
 	"strconv"
 )
@@ -17,13 +17,13 @@ type AuthController interface {
 
 type authController struct {
 	authService service.AuthService
-	jwtService service.JWTService
+	jwtService  service.JWTService
 }
 
 func NewAuthController(authService service.AuthService, jwtService service.JWTService) AuthController {
 	return &authController{
 		authService: authService,
-		jwtService: jwtService,
+		jwtService:  jwtService,
 	}
 }
 
@@ -62,10 +62,10 @@ func (c *authController) Register(ctx *gin.Context) {
 		return
 	}
 
-	if !c.authService.IsDuplicateEmail(registerDTO.Email) || !c.authService.IsDuplicateUsername(registerDTO.Username) || !c.authService.IsDuplicateCallNumber(registerDTO.CallNumber){
+	if !c.authService.IsDuplicateEmail(registerDTO.Email) || !c.authService.IsDuplicateUsername(registerDTO.Username) || !c.authService.IsDuplicateCallNumber(registerDTO.CallNumber) {
 		response := helper.BuildErrorResponse("Failed to process request", "Duplicate email, username and call number", helper.EmptyObj{})
 		ctx.AbortWithStatusJSON(http.StatusConflict, response)
-	}else {
+	} else {
 		createdUser := c.authService.CreateUser(registerDTO)
 		token := c.jwtService.GenerateToken(strconv.FormatUint(createdUser.ID, 10))
 		createdUser.Token = token

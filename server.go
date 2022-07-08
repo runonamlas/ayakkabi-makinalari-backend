@@ -2,49 +2,40 @@ package main
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/my-way-teams/my_way_backend/config"
-	"github.com/my-way-teams/my_way_backend/controller"
-	"github.com/my-way-teams/my_way_backend/middleware"
-	"github.com/my-way-teams/my_way_backend/repository"
-	"github.com/my-way-teams/my_way_backend/service"
+	"github.com/runonamlas/ayakkabi-makinalari-backend/config"
+	"github.com/runonamlas/ayakkabi-makinalari-backend/controller"
+	"github.com/runonamlas/ayakkabi-makinalari-backend/middleware"
+	"github.com/runonamlas/ayakkabi-makinalari-backend/repository"
+	"github.com/runonamlas/ayakkabi-makinalari-backend/service"
 )
 
 var (
-	db = config.SetupDatabaseConnection()
+	db         = config.SetupDatabaseConnection()
 	jwtService = service.NewJWTService()
 
 	userRepository = repository.NewUserRepository(db)
-	userService = service.NewUserService(userRepository)
+	userService    = service.NewUserService(userRepository)
 	userController = controller.NewUserController(userService, jwtService)
 
 	adminRepository = repository.NewAdminRepository(db)
-	adminService = service.NewAdminService(adminRepository)
+	adminService    = service.NewAdminService(adminRepository)
 	adminController = controller.NewAdminController(adminService, jwtService)
 
-	authService = service.NewAuthService(userRepository)
+	authService    = service.NewAuthService(userRepository)
 	authController = controller.NewAuthController(authService, jwtService)
 
-	countryRepository = repository.NewCountryRepository(db)
-	countryService = service.NewCountryService(countryRepository)
-	countryController = controller.NewCountryController(countryService, jwtService)
+	messageRepository = repository.NewMessageRepository(db)
+	messageService    = service.NewMessageService(messageRepository)
+	messageController = controller.NewMessageController(messageService, jwtService)
 
-	cityRepository = repository.NewCityRepository(db)
-	cityService = service.NewCityService(cityRepository)
-	cityController = controller.NewCityController(cityService, jwtService)
+	productRepository = repository.NewProductRepository(db)
+	productService    = service.NewProductService(productRepository)
+	productController = controller.NewProductController(productService, jwtService)
 
-	placeRepository = repository.NewPlaceRepository(db)
-	placeService = service.NewPlaceService(placeRepository)
-	placeController = controller.NewPlaceController(placeService, jwtService)
-
-	placeCategoryRepository = repository.NewPlaceCategoryRepository(db)
-	placeCategoryService = service.NewPlaceCategoryService(placeCategoryRepository)
-	placeCategoryController = controller.NewPlaceCategoryController(placeCategoryService, jwtService)
-
-	routeRepository = repository.NewRouteRepository(db)
-	routeService = service.NewRouteService(routeRepository)
-	routeController = controller.NewRouteController(routeService, jwtService)
+	productCategoryRepository = repository.NewProductCategoryRepository(db)
+	productCategoryService    = service.NewProductCategoryService(productCategoryRepository)
+	productCategoryController = controller.NewProductCategoryController(productCategoryService, jwtService)
 )
-
 
 func CORSMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -85,57 +76,36 @@ func main() {
 	{
 		userRoutes.GET("/profile", userController.Profile)
 		userRoutes.PUT("/profile", userController.Update)
-		userRoutes.GET("/favourite", userController.GetFavourites)
-		userRoutes.POST("/favourite/:id", userController.AddFavourite)
-		userRoutes.DELETE("/favourite/:id", userController.DeleteFavourite)
-		userRoutes.GET("/saved", userController.GetSaved)
-		userRoutes.POST("/saved/:id", userController.AddSaved)
-		userRoutes.DELETE("/saved/:id", userController.DeleteSaved)
+		userRoutes.GET("/favourite", userController.GetProducts)
+		//userRoutes.POST("/favourite/:id", userController.AddFavourite)
+		//userRoutes.DELETE("/favourite/:id", userController.DeleteFavourite)
 	}
 
-	countryRoutes := r.Group("api/countries", middleware.AuthorizeJWT(jwtService))
+	productRoutes := r.Group("api/products", middleware.AuthorizeJWT(jwtService))
 	{
-		countryRoutes.GET("/", countryController.All)
-		countryRoutes.POST("/", countryController.Insert)
-		countryRoutes.GET("/:id", countryController.FindByID)
-		countryRoutes.PUT("/", countryController.Update)
-		countryRoutes.DELETE("/:id", countryController.Delete)
+		productRoutes.GET("/", productController.All)
+		productRoutes.POST("/", productController.Insert)
+		productRoutes.GET("/:id", productController.FindByID)
+		productRoutes.PUT("/", productController.Update)
+		productRoutes.DELETE("/:id", productController.Delete)
 	}
 
-	cityRoutes := r.Group("api/cities", middleware.AuthorizeJWT(jwtService))
+	productCategoryRoutes := r.Group("api/product-categories", middleware.AuthorizeJWT(jwtService))
 	{
-		cityRoutes.GET("/", cityController.All)
-		cityRoutes.POST("/", cityController.Insert)
-		cityRoutes.GET("/:id", cityController.FindByID)
-		cityRoutes.PUT("/", cityController.Update)
-		cityRoutes.DELETE("/:id", cityController.Delete)
+		productCategoryRoutes.GET("/", productCategoryController.All)
+		productCategoryRoutes.POST("/", productCategoryController.Insert)
+		productCategoryRoutes.GET("/:id", productCategoryController.FindByID)
+		productCategoryRoutes.PUT("/", productCategoryController.Update)
+		productCategoryRoutes.DELETE("/:id", productCategoryController.Delete)
 	}
 
-	placeRoutes := r.Group("api/places", middleware.AuthorizeJWT(jwtService))
+	messageRoutes := r.Group("api/routes", middleware.AuthorizeJWT(jwtService))
 	{
-		placeRoutes.GET("/", placeController.All)
-		placeRoutes.POST("/", placeController.Insert)
-		placeRoutes.GET("/:id", placeController.FindByID)
-		placeRoutes.PUT("/", placeController.Update)
-		placeRoutes.DELETE("/:id", placeController.Delete)
-	}
-
-	placeCategoryRoutes := r.Group("api/place-categories", middleware.AuthorizeJWT(jwtService))
-	{
-		placeCategoryRoutes.GET("/", placeCategoryController.All)
-		placeCategoryRoutes.POST("/", placeCategoryController.Insert)
-		placeCategoryRoutes.GET("/:id", placeCategoryController.FindByID)
-		placeCategoryRoutes.PUT("/", placeCategoryController.Update)
-		placeCategoryRoutes.DELETE("/:id", placeCategoryController.Delete)
-	}
-
-	routeRoutes := r.Group("api/routes", middleware.AuthorizeJWT(jwtService))
-	{
-		routeRoutes.GET("/", routeController.All)
-		routeRoutes.POST("/", routeController.Insert)
-		routeRoutes.GET("/:id", routeController.FindByID)
-		routeRoutes.PUT("/", routeController.Update)
-		routeRoutes.DELETE("/:id", routeController.Delete)
+		messageRoutes.GET("/", messageController.All)
+		messageRoutes.POST("/", messageController.Insert)
+		messageRoutes.GET("/:id", messageController.FindByID)
+		messageRoutes.PUT("/", messageController.Update)
+		messageRoutes.DELETE("/:id", messageController.Delete)
 	}
 
 	err := r.Run()
