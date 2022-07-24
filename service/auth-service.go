@@ -33,7 +33,7 @@ func NewAuthService(userRep repository.UserRepository) AuthService {
 func (service *authService) VerifyCredential(email string) interface{} {
 	res := service.userRepository.VerifyCredential(email)
 	if v, ok := res.(entity.User); ok {
-		if v.Email == email || v.Username == email {
+		if v.Email == email || v.CallNumber == email {
 			return res
 		}
 		return false

@@ -12,7 +12,7 @@ type MessageService interface {
 	Insert(p dto.MessageCreateDTO) entity.Message
 	Update(p dto.MessageUpdateDTO) entity.Message
 	Delete(p entity.Message)
-	All(cityID uint64) []entity.Message
+	All(userID uint64, ownerID uint64) []entity.Message
 	AllMessages() []entity.Message
 	FindByID(messageID uint64) entity.Message
 	IsAllowedToEdit(cityID string, messageID uint64) bool
@@ -52,8 +52,8 @@ func (service *messageService) Delete(p entity.Message) {
 	service.messageRepository.DeleteMessage(p)
 }
 
-func (service *messageService) All(cityID uint64) []entity.Message {
-	return service.messageRepository.AllMessage(cityID)
+func (service *messageService) All(userID uint64, ownerID uint64) []entity.Message {
+	return service.messageRepository.AllMessage(userID, ownerID)
 }
 
 func (service *messageService) AllMessages() []entity.Message {

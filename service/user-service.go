@@ -11,7 +11,9 @@ import (
 type UserService interface {
 	Update(user dto.UserUpdateDTO) entity.User
 	Profile(userID string) entity.User
+	Statistic(userID string) entity.User
 	GetProducts(userID string) []entity.Product
+	GetMessages(userID string) []entity.Message
 	//AddFavourite(userID string, placeID uint64) entity.
 	//DeleteFavourite(userID string, placeID uint64) bool
 }
@@ -40,8 +42,16 @@ func (service *userService) Profile(userID string) entity.User {
 	return service.userRepository.ProfileUser(userID)
 }
 
+func (service *userService) Statistic(userID string) entity.User {
+	return service.userRepository.Statistic(userID)
+}
+
 func (service *userService) GetProducts(userID string) []entity.Product {
 	return service.userRepository.GetProducts(userID)
+}
+
+func (service *userService) GetMessages(userID string) []entity.Message {
+	return service.userRepository.GetMessages(userID)
 }
 
 /*func (service *userService) AddFavourite(userID string, placeID uint64) entity.Place {

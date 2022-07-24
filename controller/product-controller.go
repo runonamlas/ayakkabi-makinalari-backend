@@ -1,18 +1,21 @@
 package controller
 
 import (
+	"net/http"
+	"strconv"
+
+	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 	"github.com/runonamlas/ayakkabi-makinalari-backend/dto"
 	"github.com/runonamlas/ayakkabi-makinalari-backend/entity"
 	"github.com/runonamlas/ayakkabi-makinalari-backend/helper"
 	"github.com/runonamlas/ayakkabi-makinalari-backend/service"
-	"net/http"
-	"strconv"
 )
 
 type ProductController interface {
 	All(context *gin.Context)
 	FindByID(context *gin.Context)
+	FindByCategory(context *gin.Context)
 	Insert(context *gin.Context)
 	Update(context *gin.Context)
 	Delete(context *gin.Context)
@@ -31,9 +34,7 @@ func NewProductController(productServ service.ProductService, jwtServ service.JW
 }
 
 func (p *productController) All(context *gin.Context) {
-	cityID := ""
-	cityID = context.Query("city_id")
-	if cityID == "" {
+	/*if cityID == "" {
 		var products = p.productService.AllProducts()
 		res := helper.BuildResponse(true, "OK!", products)
 		context.JSON(http.StatusOK, res)
@@ -48,7 +49,26 @@ func (p *productController) All(context *gin.Context) {
 			context.AbortWithStatusJSON(http.StatusBadRequest, res)
 			return
 		}
+	}*/
+	var products = p.productService.AllProducts()
+	res := helper.BuildResponse(true, "OK!", products)
+	context.JSON(http.StatusOK, res)
+}
+
+func (p *productController) FindByCategory(context *gin.Context) {
+	id, err := strconv.ParseUint(context.Param("id"), 10, 64)
+	if err != nil {
+		res := helper.BuildErrorResponse("No param id was found", err.Error(), helper.EmptyObj{})
+		context.AbortWithStatusJSON(http.StatusBadRequest, res)
+		return
 	}
+	var product = p.productService.FindByCategory(id)
+	//if (place == entity.Place{}) {
+	//	res := helper.BuildErrorResponse("Data not found", "No data with given id", helper.EmptyObj{})
+	//	context.JSON(http.StatusNotFound, res)
+	//}else {
+	res := helper.BuildResponse(true, "OK!", product)
+	context.JSON(http.StatusOK, res)
 }
 
 func (p *productController) FindByID(context *gin.Context) {
@@ -68,12 +88,25 @@ func (p *productController) FindByID(context *gin.Context) {
 }
 
 func (p *productController) Insert(context *gin.Context) {
+	authHeader := context.GetHeader("Authorization")
+	token, err := p.jwtService.ValidateToken(authHeader)
+	if err != nil {
+		panic(err.Error())
+	}
+	claims := token.Claims.(jwt.MapClaims)
+	id := claims["user_id"]
+	n, err := strconv.ParseInt(id.(string), 10, 64)
+	if err != nil {
+		res := helper.BuildErrorResponse("Failed to process request", err.Error(), helper.EmptyObj{})
+		context.JSON(http.StatusBadRequest, res)
+	}
 	var productCreateDTO dto.ProductCreateDTO
 	errDTO := context.ShouldBind(&productCreateDTO)
 	if errDTO != nil {
 		res := helper.BuildErrorResponse("Failed to process request", errDTO.Error(), helper.EmptyObj{})
 		context.JSON(http.StatusBadRequest, res)
 	} else {
+		productCreateDTO.UserID = uint64(n)
 		result := p.productService.Insert(productCreateDTO)
 		response := helper.BuildResponse(true, "OK!", result)
 		context.JSON(http.StatusCreated, response)

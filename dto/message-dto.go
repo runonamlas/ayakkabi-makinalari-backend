@@ -10,7 +10,7 @@ type MessageUpdateDTO struct {
 
 type MessageCreateDTO struct {
 	MessageText string `json:"message" form:"message" binding:"required"`
-	Owner       string `json:"owner" form:"owner" binding:"required"`
+	UserID      uint64 `json:"userID,omitempty" form:"userID,omitemptiy" binding:"required"`
 	ProductID   uint64 `json:"productID,omitempty" form:"productID,omitempty"`
-	UserID      uint64 `json:"userID,omitempty" form:"userID,omitempty"`
+	OwnerID     uint64
 }

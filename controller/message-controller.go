@@ -1,13 +1,15 @@
 package controller
 
 import (
+	"net/http"
+	"strconv"
+
+	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 	"github.com/runonamlas/ayakkabi-makinalari-backend/dto"
 	"github.com/runonamlas/ayakkabi-makinalari-backend/entity"
 	"github.com/runonamlas/ayakkabi-makinalari-backend/helper"
 	"github.com/runonamlas/ayakkabi-makinalari-backend/service"
-	"net/http"
-	"strconv"
 )
 
 type MessageController interface {
@@ -31,24 +33,28 @@ func NewMessageController(messageServ service.MessageService, jwtServ service.JW
 }
 
 func (p *messageController) All(context *gin.Context) {
-	cityID := ""
-	cityID = context.Query("city_id")
-	if cityID == "" {
-		var messages = p.messageService.AllMessages()
-		res := helper.BuildResponse(true, "OK!", messages)
-		context.JSON(http.StatusOK, res)
-	} else {
-		convertedCityID, err := strconv.ParseUint(cityID, 10, 64)
-		if err == nil {
-			var messages = p.messageService.All(convertedCityID)
-			res := helper.BuildResponse(true, "OK!", messages)
-			context.JSON(http.StatusOK, res)
-		} else {
-			res := helper.BuildErrorResponse("No param id was found", err.Error(), helper.EmptyObj{})
-			context.AbortWithStatusJSON(http.StatusBadRequest, res)
-			return
-		}
+	authHeader := context.GetHeader("Authorization")
+	token, err := p.jwtService.ValidateToken(authHeader)
+	if err != nil {
+		panic(err.Error())
 	}
+	claims := token.Claims.(jwt.MapClaims)
+	id := claims["user_id"]
+	ownerID, err := strconv.ParseInt(id.(string), 10, 64)
+	if err != nil {
+		res := helper.BuildErrorResponse("Failed to process request", err.Error(), helper.EmptyObj{})
+		context.JSON(http.StatusBadRequest, res)
+	}
+	userID, err := strconv.ParseUint(context.Param("id"), 10, 64)
+	if err != nil {
+		res := helper.BuildErrorResponse("No param id was found", err.Error(), helper.EmptyObj{})
+		context.AbortWithStatusJSON(http.StatusBadRequest, res)
+		return
+	}
+	var messages = p.messageService.All(userID, uint64(ownerID))
+	res := helper.BuildResponse(true, "OK!", messages)
+	context.JSON(http.StatusOK, res)
+
 }
 
 func (p *messageController) FindByID(context *gin.Context) {
@@ -68,12 +74,25 @@ func (p *messageController) FindByID(context *gin.Context) {
 }
 
 func (p *messageController) Insert(context *gin.Context) {
+	authHeader := context.GetHeader("Authorization")
+	token, err := p.jwtService.ValidateToken(authHeader)
+	if err != nil {
+		panic(err.Error())
+	}
+	claims := token.Claims.(jwt.MapClaims)
+	id := claims["user_id"]
+	n, err := strconv.ParseInt(id.(string), 10, 64)
+	if err != nil {
+		res := helper.BuildErrorResponse("Failed to process request", err.Error(), helper.EmptyObj{})
+		context.JSON(http.StatusBadRequest, res)
+	}
 	var messageCreateDTO dto.MessageCreateDTO
 	errDTO := context.ShouldBind(&messageCreateDTO)
 	if errDTO != nil {
 		res := helper.BuildErrorResponse("Failed to process request", errDTO.Error(), helper.EmptyObj{})
 		context.JSON(http.StatusBadRequest, res)
 	} else {
+		messageCreateDTO.OwnerID = uint64(n)
 		result := p.messageService.Insert(messageCreateDTO)
 		response := helper.BuildResponse(true, "OK!", result)
 		context.JSON(http.StatusCreated, response)

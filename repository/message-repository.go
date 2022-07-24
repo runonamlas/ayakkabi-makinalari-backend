@@ -9,7 +9,7 @@ type MessageRepository interface {
 	InsertMessage(c entity.Message) entity.Message
 	UpdateMessage(c entity.Message) entity.Message
 	DeleteMessage(c entity.Message)
-	AllMessage(cityID uint64) []entity.Message
+	AllMessage(userID uint64, ownerID uint64) []entity.Message
 	AllMessages() []entity.Message
 	FindMessageByID(messageID uint64) entity.Message
 }
@@ -26,7 +26,7 @@ func NewMessageRepository(dbConn *gorm.DB) MessageRepository {
 
 func (db *messageConnection) InsertMessage(c entity.Message) entity.Message {
 	db.connection.Save(&c)
-	db.connection.Preload("Routes").Preload("City.Country").Preload("Category").Find(&c)
+	db.connection.Preload("Owner").Preload("Product").Preload("User").Find(&c)
 	return c
 }
 
@@ -46,9 +46,12 @@ func (db *messageConnection) FindMessageByID(messageID uint64) entity.Message {
 	return message
 }
 
-func (db *messageConnection) AllMessage(cityID uint64) []entity.Message {
+func (db *messageConnection) AllMessage(userID uint64, ownerID uint64) []entity.Message {
 	var messages []entity.Message
-	db.connection.Preload("Routes").Preload("City.Country").Preload("Category").Where("city_id = ?", cityID).Find(&messages)
+	var messagess []entity.Message
+	db.connection.Order("ID DESC").Preload("Owner").Preload("Product").Preload("User").Where("user_id = ? AND owner_id = ?", userID, ownerID).Find(&messages)
+	db.connection.Order("ID DESC").Preload("Owner").Preload("Product").Preload("User").Where("user_id = ? AND owner_id = ?", ownerID, userID).Find(&messagess)
+	messages = append(messages, messagess...)
 	return messages
 }
 

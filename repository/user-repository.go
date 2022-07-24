@@ -1,10 +1,11 @@
 package repository
 
 import (
+	"log"
+
 	"github.com/runonamlas/ayakkabi-makinalari-backend/entity"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
-	"log"
 )
 
 type UserRepository interface {
@@ -17,7 +18,9 @@ type UserRepository interface {
 	FindByEmail(email string) entity.User
 	FindByUsername(username string) entity.User
 	ProfileUser(userID string) entity.User
+	Statistic(userID string) entity.User
 	GetProducts(userID string) []entity.Product
+	GetMessages(userID string) []entity.Message
 	//AddFavourite(userID string, placeID uint64) entity.Place
 	//DeleteFavourite(userID string, placeID uint64) bool
 }
@@ -39,21 +42,22 @@ func (db *userConnection) InsertUser(user entity.User) entity.User {
 }
 
 func (db *userConnection) UpdateUser(user entity.User) entity.User {
-	if user.Password != "" {
-		user.Password = hashAndSalt([]byte(user.Password))
-	} else {
-		var tempUser entity.User
-		db.connection.Find(&tempUser, user.ID)
-		user.Password = tempUser.Password
+	var tempUser entity.User
+	db.connection.Find(&tempUser, user.ID)
+	if user.Username != "" {
+		tempUser.Username = user.Username
 	}
-	db.connection.Save(&user)
-	return user
+	if user.Address != "" {
+		tempUser.Address = user.Address
+	}
+	db.connection.Save(&tempUser)
+	return tempUser
 }
 
 func (db *userConnection) VerifyCredential(email string) interface{} {
 	var user entity.User
 	res := db.connection.Where("email = ?", email).Take(&user)
-	resUsername := db.connection.Where("username = ?", email).Take(&user)
+	resUsername := db.connection.Where("call_number = ?", email).Take(&user)
 	if res.Error == nil || resUsername.Error == nil {
 		return user
 	}
@@ -72,7 +76,7 @@ func (db *userConnection) IsDuplicateUsername(username string) (tx *gorm.DB) {
 
 func (db *userConnection) IsDuplicateCallNumber(callNumber string) (tx *gorm.DB) {
 	var user entity.User
-	return db.connection.Where("callNumber = ?", callNumber).Take(&user)
+	return db.connection.Where("call_number = ?", callNumber).Take(&user)
 }
 
 func (db *userConnection) FindByEmail(email string) entity.User {
@@ -89,21 +93,46 @@ func (db *userConnection) FindByUsername(username string) entity.User {
 
 func (db *userConnection) ProfileUser(userID string) entity.User {
 	var user entity.User
-	db.connection.Find(&user, userID)
+	db.connection.Preload("Products").Where("username = ?", userID).Take(&user)
+	user.ClickProfile = user.ClickProfile + 1
+	db.connection.Save(&user)
+	return user
+}
+
+func (db *userConnection) Statistic(userID string) entity.User {
+	var user entity.User
+	db.connection.Preload("Products").Find(&user, userID)
 	return user
 }
 
 func (db *userConnection) GetProducts(userID string) []entity.Product {
 	var user entity.User
-	var places []entity.Product
-	println("-------")
-	db.connection.Preload("Products").Find(&user, userID)
-	/*for _, v := range user.Products {
-		if v.City.CountryID == countryID {
-			places = append(places, v)
+	var products []entity.Product
+	db.connection.Preload("Products.Category").Find(&user, userID)
+	for _, v := range user.Products {
+		products = append(products, *v)
+	}
+	return products
+}
+
+func (db *userConnection) GetMessages(userID string) []entity.Message {
+	var user entity.User
+	var messages []entity.Message
+	db.connection.Preload("Messages.Owner").Preload("Messages.Product").Preload("Messages.User").Find(&user, userID)
+	for _, v := range user.Messages {
+		var a = false
+		for i, message := range messages {
+			if v.OwnerID == message.OwnerID {
+				messages[i] = *v
+				a = true
+				break
+			}
 		}
-	}*/
-	return places
+		if !a {
+			messages = append(messages, *v)
+		}
+	}
+	return messages
 }
 
 /*func (db *userConnection) AddFavourite(userID string, placeID uint64) entity.Place {

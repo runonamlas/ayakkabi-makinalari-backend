@@ -31,7 +31,7 @@ func SetupDatabaseConnection() *gorm.DB {
 		panic("Failed a connection database")
 	}
 	//err = db.AutoMigrate(&entity.Admin{}, &entity.User{}, &entity.Country{}, &entity.City{}, &entity.Place{}, &entity.PlaceCategory{}, &entity.Route{})
-	err = db.AutoMigrate(&entity.User{}, &entity.Product{}, &entity.ProductCategory{}, &entity.Message{})
+	err = db.AutoMigrate(&entity.User{}, &entity.ProductCategory{}, &entity.Product{}, &entity.Message{})
 	if err != nil {
 		return nil
 	}

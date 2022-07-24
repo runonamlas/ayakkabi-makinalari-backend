@@ -44,13 +44,13 @@ func (c *productCategoryController) FindByID(context *gin.Context) {
 		return
 	}
 	var category = c.productCategoryService.FindByID(id)
-	if (category == entity.ProductCategory{}) {
+	/*if (category == entity.ProductCategory{}) {
 		res := helper.BuildErrorResponse("Data not found", "No data with given id", helper.EmptyObj{})
 		context.JSON(http.StatusNotFound, res)
-	} else {
-		res := helper.BuildResponse(true, "OK!", category)
-		context.JSON(http.StatusOK, res)
-	}
+	} else {*/
+	res := helper.BuildResponse(true, "OK!", category)
+	context.JSON(http.StatusOK, res)
+	//}
 }
 
 func (c *productCategoryController) Insert(context *gin.Context) {

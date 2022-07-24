@@ -39,12 +39,12 @@ func (db *productCategoryConnection) DeleteCategory(c entity.ProductCategory) {
 
 func (db *productCategoryConnection) FindCategoryByID(categoryID uint64) entity.ProductCategory {
 	var category entity.ProductCategory
-	db.connection.Find(&category, categoryID)
+	db.connection.Preload("Products.User").Find(&category, categoryID)
 	return category
 }
 
 func (db *productCategoryConnection) AllCategory() []entity.ProductCategory {
 	var categories []entity.ProductCategory
-	db.connection.Find(&categories)
+	db.connection.Preload("Products").Find(&categories)
 	return categories
 }

@@ -15,6 +15,7 @@ type ProductService interface {
 	All(cityID uint64) []entity.Product
 	AllProducts() []entity.Product
 	FindByID(productID uint64) entity.Product
+	FindByCategory(categoryID uint64) []entity.Product
 	IsAllowedToEdit(cityID string, productID uint64) bool
 }
 
@@ -62,6 +63,10 @@ func (service *productService) AllProducts() []entity.Product {
 
 func (service *productService) FindByID(productID uint64) entity.Product {
 	return service.productRepository.FindProductByID(productID)
+}
+
+func (service *productService) FindByCategory(categoryID uint64) []entity.Product {
+	return service.productRepository.FindProductByCategory(categoryID)
 }
 
 func (service *productService) IsAllowedToEdit(cityID string, productID uint64) bool {
