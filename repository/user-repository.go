@@ -21,6 +21,7 @@ type UserRepository interface {
 	Statistic(userID string) entity.User
 	GetProducts(userID string) []entity.Product
 	GetMessages(userID string) []entity.Message
+	ChangePassword(user entity.User) bool
 	//AddFavourite(userID string, placeID uint64) entity.Place
 	//DeleteFavourite(userID string, placeID uint64) bool
 }
@@ -52,6 +53,14 @@ func (db *userConnection) UpdateUser(user entity.User) entity.User {
 	}
 	db.connection.Save(&tempUser)
 	return tempUser
+}
+
+func (db *userConnection) ChangePassword(user entity.User) bool {
+	var tempUser entity.User
+	db.connection.Find(&tempUser, user.ID)
+	tempUser.Password = hashAndSalt([]byte(user.Password))
+	res := db.connection.Save(&tempUser)
+	return res.Error == nil
 }
 
 func (db *userConnection) VerifyCredential(email string) interface{} {

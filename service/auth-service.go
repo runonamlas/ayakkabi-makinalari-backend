@@ -18,6 +18,7 @@ type AuthService interface {
 	FindByUsername(username string) entity.User
 	IsDuplicateUsername(username string) bool
 	IsDuplicateCallNumber(callNumber string) bool
+	ChangePassword(changePasswordDTO dto.ChangePasswordDTO) bool
 }
 
 type authService struct {
@@ -92,4 +93,14 @@ func comparedPassword(hashedPwd string, plainPassword []byte) bool {
 		return false
 	}
 	return true
+}
+
+func (service *authService) ChangePassword(changePasswordDTO dto.ChangePasswordDTO) bool {
+	userToUpdate := entity.User{}
+	err := smapping.FillStruct(&userToUpdate, smapping.MapFields(&changePasswordDTO))
+	if err != nil {
+		log.Fatalf("Failed map %v", err)
+	}
+	updatedUser := service.userRepository.ChangePassword(userToUpdate)
+	return updatedUser
 }

@@ -9,6 +9,7 @@ import (
 
 type JWTService interface {
 	GenerateToken(userID string) string
+	GenerateTokenForget(userID string) string
 	ValidateToken(token string) (*jwt.Token, error)
 }
 
@@ -19,12 +20,12 @@ type jwtCustomClaim struct {
 
 type jwtService struct {
 	secretKey string
-	issuer string
+	issuer    string
 }
 
 func NewJWTService() JWTService {
 	return &jwtService{
-		issuer: "salman",
+		issuer:    "salman",
 		secretKey: getSecretKey(),
 	}
 }
@@ -40,9 +41,26 @@ func (j *jwtService) GenerateToken(UserID string) string {
 	claims := &jwtCustomClaim{
 		UserID,
 		jwt.StandardClaims{
-			ExpiresAt: time.Now().AddDate(1,0,0).Unix(),
-			Issuer: j.issuer,
-			IssuedAt: time.Now().Unix(),
+			ExpiresAt: time.Now().AddDate(1, 0, 0).Unix(),
+			Issuer:    j.issuer,
+			IssuedAt:  time.Now().Unix(),
+		},
+	}
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	t, err := token.SignedString([]byte(j.secretKey))
+	if err != nil {
+		panic(err)
+	}
+	return t
+}
+
+func (j *jwtService) GenerateTokenForget(UserID string) string {
+	claims := &jwtCustomClaim{
+		UserID,
+		jwt.StandardClaims{
+			ExpiresAt: time.Now().Add(time.Minute * time.Duration(30)).Unix(),
+			Issuer:    j.issuer,
+			IssuedAt:  time.Now().Unix(),
 		},
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
