@@ -25,6 +25,11 @@ func NewMessageRepository(dbConn *gorm.DB) MessageRepository {
 }
 
 func (db *messageConnection) InsertMessage(c entity.Message) entity.Message {
+	if c.ProductID == 0 {
+		var user entity.User
+		db.connection.Preload("Products").Find(&user, c.UserID)
+		c.ProductID = user.Products[0].ID
+	}
 	db.connection.Save(&c)
 	db.connection.Preload("Owner").Preload("Product").Preload("User").Find(&c)
 	return c
