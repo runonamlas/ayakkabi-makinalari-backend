@@ -2,7 +2,6 @@ package config
 
 import (
 	"fmt"
-	//"github.com/runonamlas/ayakkabi-makinalari-backend/entity"
 	"os"
 
 	"github.com/joho/godotenv"
@@ -21,16 +20,19 @@ func SetupDatabaseConnection() *gorm.DB {
 	dbPass := os.Getenv("DB_PASS")
 	dbHost := os.Getenv("DB_HOST")
 	dbName := os.Getenv("DB_NAME")
-	herokuUrl := os.Getenv("DATABASE_URL")
+	cloudURL := os.Getenv("CLOUD")
 	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=5432 sslmode=disable", dbHost, dbUser, dbPass, dbName)
-	if len(herokuUrl) != 0 {
-		dsn = fmt.Sprintf(os.Getenv("DATABASE_URL"))
+	if cloudURL == "true" {
+		cloudUser := os.Getenv("CLOUD_USER")
+		cloudPass := os.Getenv("CLOUD_PASS")
+		cloudHost := os.Getenv("CLOUD_HOST")
+		cloudName := os.Getenv("CLOUD_NAME")
+		dsn = fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=5432 sslmode=disable", cloudHost, cloudUser, cloudPass, cloudName)
 	}
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
 		panic("Failed a connection database")
 	}
-	//err = db.AutoMigrate(&entity.Admin{}, &entity.User{}, &entity.Country{}, &entity.City{}, &entity.Place{}, &entity.PlaceCategory{}, &entity.Route{})
 	err = db.AutoMigrate(&entity.User{}, &entity.ProductCategory{}, &entity.Product{}, &entity.Message{})
 	if err != nil {
 		return nil
