@@ -48,7 +48,6 @@ func CORSMiddleware() gin.HandlerFunc {
 			c.AbortWithStatus(204)
 			return
 		}
-
 		c.Next()
 	}
 }
@@ -59,7 +58,7 @@ func main() {
 	r.Use(CORSMiddleware())
 	r.Use(gin.Logger())
 
-	authRoutes := r.Group("api/auth")
+	authRoutes := r.Group("auth")
 	{
 		authRoutes.POST("/login", authController.Login)
 		authRoutes.POST("/register", authController.Register)
@@ -67,7 +66,7 @@ func main() {
 		authRoutes.POST("/change", authController.Change)
 	}
 
-	adminRoutes := r.Group("api/admin")
+	adminRoutes := r.Group("admin")
 	{
 		adminRoutes.POST("/login", adminController.Login)
 		adminRoutes.POST("/register", adminController.Register)
@@ -76,7 +75,7 @@ func main() {
 		adminRoutes.GET("/users", adminController.Users, middleware.AuthorizeJWT(jwtService))
 	}
 
-	userRoutes := r.Group("api/user")
+	userRoutes := r.Group("user")
 	{
 		userRoutes.GET("/profile/:id", userController.Profile)
 		userRoutes.PUT("/profile", userController.Update, middleware.AuthorizeJWT(jwtService))
@@ -87,7 +86,7 @@ func main() {
 		//userRoutes.DELETE("/favourite/:id", userController.DeleteFavourite)
 	}
 
-	productRoutes := r.Group("api/products")
+	productRoutes := r.Group("products")
 	{
 		productRoutes.GET("/", productController.All)
 		productRoutes.POST("/add", productController.Insert, middleware.AuthorizeJWT(jwtService))
@@ -97,7 +96,7 @@ func main() {
 		productRoutes.DELETE("/:id", productController.Delete, middleware.AuthorizeJWT(jwtService))
 	}
 
-	productCategoryRoutes := r.Group("api/product-categories")
+	productCategoryRoutes := r.Group("product-categories")
 	{
 		productCategoryRoutes.GET("/", productCategoryController.All)
 		productCategoryRoutes.POST("/", productCategoryController.Insert)
@@ -106,7 +105,7 @@ func main() {
 		//productCategoryRoutes.DELETE("/:id", productCategoryController.Delete)
 	}
 
-	messageRoutes := r.Group("api/messages", middleware.AuthorizeJWT(jwtService))
+	messageRoutes := r.Group("messages", middleware.AuthorizeJWT(jwtService))
 	{
 		messageRoutes.GET("/:id", messageController.All)
 		messageRoutes.POST("/", messageController.Insert)
