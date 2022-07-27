@@ -13,6 +13,7 @@ type Product struct {
 	Price        string          `gorm:"type:varchar(255)" json:"price"`
 	PriceUnit    uint8           `json:"priceUnit"`
 	Vitrin       uint8           `json:"vitrin"`
+	Status       uint64          `gorm:"type:uint;default:0" json:"status"`
 	ClickProduct uint64          `gorm:"type:uint;default:0" json:"clickProduct"`
 	CategoryID   uint64          `gorm:"" json:"-"`
 	UserID       uint64          `gorm:"" json:"-"`

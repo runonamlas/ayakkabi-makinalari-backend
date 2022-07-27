@@ -43,7 +43,7 @@ func (db *productConnection) DeleteProduct(c entity.Product) {
 
 func (db *productConnection) FindProductByID(productID uint64) entity.Product {
 	var product entity.Product
-	db.connection.Preload("User").Preload("Category").Find(&product, productID)
+	db.connection.Preload("User").Preload("Category").Where("status = ?", "1").Find(&product, productID)
 	product.ClickProduct = product.ClickProduct + 1
 	db.connection.Save(&product)
 	return product
@@ -51,18 +51,18 @@ func (db *productConnection) FindProductByID(productID uint64) entity.Product {
 
 func (db *productConnection) FindProductByCategory(categoryID uint64) []entity.Product {
 	var products []entity.Product
-	db.connection.Preload("User").Preload("Category").Find(&products)
+	db.connection.Preload("User").Preload("Category").Where("status = ?", "1").Find(&products)
 	return products
 }
 
 func (db *productConnection) AllProduct(cityID uint64) []entity.Product {
 	var products []entity.Product
-	db.connection.Preload("Routes").Preload("City.Country").Preload("Category").Where("city_id = ?", cityID).Find(&products)
+	db.connection.Preload("Category").Where("city_id = ? AND status = 1", cityID).Find(&products)
 	return products
 }
 
 func (db *productConnection) AllProducts() []entity.Product {
 	var products []entity.Product
-	db.connection.Order("ID DESC").Preload("User").Preload("Category").Find(&products)
+	db.connection.Order("ID DESC").Preload("User").Preload("Category").Where("status = ?", "1").Find(&products)
 	return products
 }
