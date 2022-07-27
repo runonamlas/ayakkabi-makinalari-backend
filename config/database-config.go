@@ -23,10 +23,10 @@ func SetupDatabaseConnection() *gorm.DB {
 	cloudURL := os.Getenv("CLOUD")
 	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=5432 sslmode=disable", dbHost, dbUser, dbPass, dbName)
 	if cloudURL == "true" {
-		cloudUser := os.Getenv("CLOUD_USER")
-		cloudPass := os.Getenv("CLOUD_PASS")
-		cloudHost := os.Getenv("CLOUD_HOST")
-		cloudName := os.Getenv("CLOUD_NAME")
+		cloudUser := os.Getenv("DATABASE_USER")
+		cloudPass := os.Getenv("DATABASE_PASS")
+		cloudHost := os.Getenv("DATABASE_URL")
+		cloudName := os.Getenv("DATABASE_NAME")
 		dsn = fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=5432 sslmode=disable", cloudHost, cloudUser, cloudPass, cloudName)
 	}
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
