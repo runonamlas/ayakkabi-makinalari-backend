@@ -114,7 +114,7 @@ func (c *authController) Forget(ctx *gin.Context) {
 			ctx.JSON(http.StatusOK, response)
 			return
 		}
-		response := helper.BuildErrorResponse("Please check again your email or username", "Invalid Credential", helper.EmptyObj{})
+		response := helper.BuildErrorResponse("Kullanıcı adı şifre eşleşmiyor", "Invalid Credential", helper.EmptyObj{})
 		ctx.AbortWithStatusJSON(http.StatusUnauthorized, response)
 	} else {
 		response := helper.BuildErrorResponse("Failed to process request", "Not found email", helper.EmptyObj{})
