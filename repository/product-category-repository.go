@@ -40,6 +40,18 @@ func (db *productCategoryConnection) DeleteCategory(c entity.ProductCategory) {
 func (db *productCategoryConnection) FindCategoryByID(categoryID uint64) entity.ProductCategory {
 	var category entity.ProductCategory
 	db.connection.Preload("Products.User").Find(&category, categoryID)
+	var products []*entity.Product
+	for idx, v := range category.Products {
+		if v.Status == 1 {
+			products = append(products, category.Products[idx])
+		}
+	}
+	/*for k, v := range category.Products {
+		if v.Status != 1 {
+			category.Products[k] = nil
+		}
+	}*/
+	category.Products = products
 	return category
 }
 
