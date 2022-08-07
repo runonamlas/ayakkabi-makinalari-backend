@@ -1,6 +1,8 @@
 package main
 
 import (
+	"os"
+
 	"github.com/gin-gonic/gin"
 	"github.com/runonamlas/ayakkabi-makinalari-backend/config"
 	"github.com/runonamlas/ayakkabi-makinalari-backend/controller"
@@ -44,7 +46,6 @@ func CORSMiddleware() gin.HandlerFunc {
 		c.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, accept, origin, Cache-Control, X-Requested-With")
 		c.Writer.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS, GET, PUT, DELETE")
 		if c.Request.Method == "OPTIONS" {
-			println("hereerre")
 			c.AbortWithStatus(204)
 			return
 		}
@@ -53,7 +54,9 @@ func CORSMiddleware() gin.HandlerFunc {
 }
 func main() {
 	defer config.CloseDatabaseConnection(db)
-	//gin.SetMode(gin.ReleaseMode)
+	if os.Getenv("CLOUD") == "true" {
+		gin.SetMode(gin.ReleaseMode)
+	}
 	r := gin.New()
 	r.Use(CORSMiddleware())
 	r.Use(gin.Logger())

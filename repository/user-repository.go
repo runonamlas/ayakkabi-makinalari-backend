@@ -102,7 +102,7 @@ func (db *userConnection) FindByUsername(username string) entity.User {
 
 func (db *userConnection) ProfileUser(userID string) entity.User {
 	var user entity.User
-	db.connection.Preload("Products").Where("username = ?", userID).Take(&user)
+	db.connection.Preload("Products").Where("id = ?", userID).Take(&user)
 	user.ClickProfile = user.ClickProfile + 1
 	db.connection.Save(&user)
 	return user
