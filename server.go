@@ -96,8 +96,9 @@ func main() {
 		productRoutes.POST("/add", productController.Insert, middleware.AuthorizeJWT(jwtService))
 		productRoutes.GET("/:id", productController.FindByID)
 		productRoutes.GET("/category/:id", productController.FindByCategory)
-		productRoutes.PUT("/", productController.Update, middleware.AuthorizeJWT(jwtService))
+		productRoutes.PUT("/update", productController.Update, middleware.AuthorizeJWT(jwtService))
 		productRoutes.DELETE("/:id", productController.Delete, middleware.AuthorizeJWT(jwtService))
+		productRoutes.DELETE("/sold/:id", productController.Sold, middleware.AuthorizeJWT(jwtService))
 	}
 
 	productCategoryRoutes := r.Group("product-categories")

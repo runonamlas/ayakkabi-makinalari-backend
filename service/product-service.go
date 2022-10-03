@@ -12,6 +12,7 @@ type ProductService interface {
 	Insert(p dto.ProductCreateDTO) entity.Product
 	Update(p dto.ProductUpdateDTO) entity.Product
 	Delete(p entity.Product)
+	Sold(p entity.Product)
 	All(cityID uint64) []entity.Product
 	AllProducts() []entity.Product
 	FindByID(productID uint64) entity.Product
@@ -51,6 +52,10 @@ func (service *productService) Update(p dto.ProductUpdateDTO) entity.Product {
 
 func (service *productService) Delete(p entity.Product) {
 	service.productRepository.DeleteProduct(p)
+}
+
+func (service *productService) Sold(p entity.Product) {
+	service.productRepository.SoldProduct(p)
 }
 
 func (service *productService) All(cityID uint64) []entity.Product {

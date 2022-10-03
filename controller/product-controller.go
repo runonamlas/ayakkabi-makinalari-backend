@@ -19,6 +19,7 @@ type ProductController interface {
 	Insert(context *gin.Context)
 	Update(context *gin.Context)
 	Delete(context *gin.Context)
+	Sold(context *gin.Context)
 }
 
 type productController struct {
@@ -114,6 +115,18 @@ func (p *productController) Insert(context *gin.Context) {
 }
 
 func (p *productController) Update(context *gin.Context) {
+	authHeader := context.GetHeader("Authorization")
+	token, err := p.jwtService.ValidateToken(authHeader)
+	if err != nil {
+		panic(err.Error())
+	}
+	claims := token.Claims.(jwt.MapClaims)
+	id := claims["user_id"]
+	n, err := strconv.ParseInt(id.(string), 10, 64)
+	if err != nil {
+		res := helper.BuildErrorResponse("Failed to process request", err.Error(), helper.EmptyObj{})
+		context.JSON(http.StatusBadRequest, res)
+	}
 	var productUpdateDTO dto.ProductUpdateDTO
 	errDTO := context.ShouldBind(&productUpdateDTO)
 	if errDTO != nil {
@@ -121,6 +134,7 @@ func (p *productController) Update(context *gin.Context) {
 		context.JSON(http.StatusBadRequest, res)
 		return
 	}
+	productUpdateDTO.UserID = uint64(n)
 	result := p.productService.Update(productUpdateDTO)
 	response := helper.BuildResponse(true, "OK!", result)
 	context.JSON(http.StatusOK, response)
@@ -136,5 +150,18 @@ func (p *productController) Delete(context *gin.Context) {
 	product.ID = id
 	p.productService.Delete(product)
 	res := helper.BuildResponse(true, "Deleted", helper.EmptyObj{})
+	context.JSON(http.StatusOK, res)
+}
+
+func (p *productController) Sold(context *gin.Context) {
+	var product entity.Product
+	id, err := strconv.ParseUint(context.Param("id"), 0, 0)
+	if err != nil {
+		response := helper.BuildErrorResponse("Failed to get id", "No params id were found", helper.EmptyObj{})
+		context.JSON(http.StatusBadRequest, response)
+	}
+	product.ID = id
+	p.productService.Sold(product)
+	res := helper.BuildResponse(true, "Sold", helper.EmptyObj{})
 	context.JSON(http.StatusOK, res)
 }

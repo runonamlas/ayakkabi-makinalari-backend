@@ -10,6 +10,7 @@ type ProductUpdateDTO struct {
 	PriceUnit  uint8  `json:"priceUnit" form:"priceUnit" binding:"required"`
 	Vitrin     uint8  `json:"vitrin" form:"vitrin" binding:"required"`
 	CategoryID uint64 `json:"categoryID,omitempty" form:"categoryID,omitempty"`
+	UserID     uint64
 }
 
 type ProductCreateDTO struct {
